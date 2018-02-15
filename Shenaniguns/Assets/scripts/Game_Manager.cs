@@ -8,7 +8,7 @@ public class Game_Manager : MonoBehaviour
 {
     public static Game_Manager instance;
     private List<GameObject> players = new List<GameObject>();
-    private List<GameObject> cameras = new List<GameObject>();
+    public List<GameObject> cameras = new List<GameObject>();
 
     //splitscreen viewports
     private Rect full = new Rect(0.0f, 0.0f, 1.0f, 1.0f);
@@ -47,6 +47,7 @@ public class Game_Manager : MonoBehaviour
         }
         if (Input.GetButtonDown("Player2Start"))
         {
+            Debug.Log("trying");
             CreatePlayer(1);
             CreatePlayer(2);
         }
@@ -54,20 +55,19 @@ public class Game_Manager : MonoBehaviour
 
     public GameObject CreatePlayer(int playerNum)
     {
-        GameObject player = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        Object prefab = Resources.Load("meshes/ThaylenLightSworn"); 
+        GameObject player = (GameObject)Instantiate(prefab, new Vector3(playerNum*5, 0, 0), Quaternion.identity);
         player.AddComponent(System.Type.GetType("Player"));
-        player.transform.position = new Vector3(0, 5, 0);
-        player.AddComponent<Rigidbody>();
         player.GetComponent<Rigidbody>().freezeRotation = true;
         player.GetComponent<Player>().Init(playerNum);
-        BuildPlayerCamera(player);
+        BuildPlayerCamera(player, playerNum);
         return player;
     }
 
-    public void BuildPlayerCamera(GameObject player) {
+    public void BuildPlayerCamera(GameObject player,int playerNum) {
         GameObject camera = new GameObject();
         camera.AddComponent<Camera>();
-        camera.GetComponent<Camera>().transform.position = new Vector3(0, 10, -10);
+        camera.GetComponent<Camera>().transform.position = new Vector3(playerNum*5, 10, -10);
         camera.transform.LookAt(player.transform);
         camera.transform.parent = player.transform;
         instance.cameras.Add(camera);

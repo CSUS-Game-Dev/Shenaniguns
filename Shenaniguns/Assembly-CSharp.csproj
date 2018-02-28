@@ -53,6 +53,7 @@
   <ItemGroup>
      <Compile Include="Assets\BasicPlayerScript.cs" />
      <Compile Include="Assets\CamScript.cs" />
+     <Compile Include="Assets\PlayerCamScript.cs" />
      <Compile Include="Assets\scripts\Game_Manager.cs" />
      <Compile Include="Assets\scripts\Player.cs" />
  <Reference Include="UnityEngine.UI">

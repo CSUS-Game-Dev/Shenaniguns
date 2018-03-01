@@ -10,8 +10,8 @@ public class BasicPlayerScript : MonoBehaviour {
 	//private Vector3 forwardDirection;
 	//public Quaternion currentRotation;
 
-	public static float MAX_X_ROTATION = 90f;
-	public static float MIN_X_ROTATION = -90f;
+	public static float MAX_PITCH= 80f;
+	public static float MIN_PITCH = -80f;
 	private float currentPitch = 0;
 
 	private Vector3 lookDirection;
@@ -26,8 +26,6 @@ public class BasicPlayerScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		controller = GetComponent<CharacterController>();
-		//currentRotation = Quaternion.identity;
-		
 		lookDirection = new Vector3(0f, 0f, 0f);
 	}
 	
@@ -40,8 +38,10 @@ public class BasicPlayerScript : MonoBehaviour {
 	public void move(){
 		//controller.Move(new Vector3(Input.GetK), 0f, Input.GetAxis("Vertical")));
 
+		Vector3 moveDirection = Vector3.Scale(transform.rotation * new Vector3(0f, 0f, 1f), new Vector3(1f, 0f, 1f)).normalized;
+
 		if(Input.GetKey(KeyCode.W)){
-			controller.Move(transform.rotation * new Vector3(0f, 0f, moveSpeed * Time.deltaTime));
+			controller.Move(moveDirection * moveSpeed);
 		}
 
 	}
@@ -73,11 +73,11 @@ public class BasicPlayerScript : MonoBehaviour {
 
 	public void pitch(float eulerAngle){
 		float newFloat = eulerAngle;
-		if(currentPitch + eulerAngle > 90f){
-			newFloat = 90f - currentPitch;
+		if(currentPitch + eulerAngle > MAX_PITCH){
+			newFloat = MAX_PITCH - currentPitch;
 		}
-		else if(currentPitch + eulerAngle < -90f){
-			newFloat = -90f - currentPitch;
+		else if(currentPitch + eulerAngle < MIN_PITCH){
+			newFloat = MIN_PITCH - currentPitch;
 		}
 
 		currentPitch += newFloat;

@@ -24,6 +24,8 @@ public class BasicPlayerScript : MonoBehaviour {
 	//Height above the player that the camera sits
 	private float cameraHeight = 10f;
 
+	public GameObject sampleMissile;
+
 	public float targetDistance = 5f;
 	private float rotationSpeed = 10f;
 
@@ -41,6 +43,10 @@ public class BasicPlayerScript : MonoBehaviour {
 		rotateWithMouse();
 		move();
 		updateCamera();
+
+		if(Input.GetKeyDown("space")){
+			Instantiate(sampleMissile, transform.position + transform.rotation * new Vector3(0f, 0f, 1.5f), transform.rotation);
+		}
 	}
 
 	public void move(){

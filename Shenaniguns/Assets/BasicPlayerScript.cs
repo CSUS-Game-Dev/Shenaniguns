@@ -7,72 +7,69 @@ public class BasicPlayerScript : MonoBehaviour {
 	[SerializeField] public float moveSpeed;
 	private CharacterController controller;
 
-	//private Vector3 forwardDirection;
-	//public Quaternion currentRotation;
 
-	public static float MAX_PITCH= 80f;
+	//The maximum and minimum angles the player can look vertically
+	public static float MAX_PITCH = 80f;
 	public static float MIN_PITCH = -80f;
+
+	//Keeps track of the pitch the character is looking
 	private float currentPitch = 0;
 
-	private Vector3 lookDirection;
+	//Directions the player is looking
+	private Vector3 lookDirection = new Vector3(0f, 0f, 0f);
+	private Vector3 directionXZ = new Vector3(0f, 0f, 0f);
 
-	public float currentRotationY = 0f;
-	public float currentRotationX = 0f;
+	private Vector3 cameraTarget = new Vector3(0f, 0f, 0f);
 
+	//Height above the player that the camera sits
+	private float cameraHeight = 10f;
+
+	public float targetDistance = 5f;
 	private float rotationSpeed = 10f;
 
-	private 
+	public Camera playerCamera;
 
 	// Use this for initialization
 	void Start () {
 		controller = GetComponent<CharacterController>();
 		lookDirection = new Vector3(0f, 0f, 0f);
+		playerCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
 	}
 	
-	// Update is called once per frame
+	// It is important that the rotation happens before the movement - it will feel more responsive that way
 	void Update () {
-		move();
 		rotateWithMouse();
+		move();
+		updateCamera();
 	}
 
 	public void move(){
-		//controller.Move(new Vector3(Input.GetK), 0f, Input.GetAxis("Vertical")));
+		//Vector3 moveDirection = Vector3.Scale(transform.rotation * new Vector3(0f, 0f, 1f), new Vector3(1f, 0f, 1f)).normalized;
 
-		Vector3 moveDirection = Vector3.Scale(transform.rotation * new Vector3(0f, 0f, 1f), new Vector3(1f, 0f, 1f)).normalized;
+		Vector3 inputDirection = new Vector3(Input.GetAxis("Horizontal"), 0f, Input.GetAxis("Vertical"));
 
-		if(Input.GetKey(KeyCode.W)){
-			controller.Move(moveDirection * moveSpeed);
-		}
-
+		inputDirection = Vector3.Scale(transform.rotation * inputDirection, new Vector3(1f, 0f, 1f)).normalized;
+		controller.Move(inputDirection* moveSpeed);
 	}
 
 	public void rotateWithMouse(){
-
 		 yaw(Input.GetAxis("Mouse X") * rotationSpeed);
 		 pitch(Input.GetAxis("Mouse Y") * -rotationSpeed);
-
-		if(Input.GetKeyDown(KeyCode.A)){
-			yaw(rotationSpeed);
-		}
-		if(Input.GetKeyDown(KeyCode.D)){
-			yaw(rotationSpeed * -1);
-		}
-		updateLookDirection();
 	}
 
+	//Rotates the character around the absolute Y axis
 	public void yaw(float eulerAngle){
 		
 		Quaternion rotU = Quaternion.AngleAxis(eulerAngle, Vector3.up);
-		transform.rotation = rotU *transform.rotation;
+		transform.rotation = rotU * transform.rotation;
 
-		//currentRotationY += eulerAngle;
-		//currentRotationY = currentRotationY % 360;
-		//transform.Rotate(Vector3.up * eulerAngle);
-		
+		directionXZ = Vector3.Scale(transform.rotation * new Vector3(0f, 0f, 1f), new Vector3(1f, 0f, 1f)).normalized;
 	}
 
+	//Rotates the character up and down locally
 	public void pitch(float eulerAngle){
 		float newFloat = eulerAngle;
+
 		if(currentPitch + eulerAngle > MAX_PITCH){
 			newFloat = MAX_PITCH - currentPitch;
 		}
@@ -84,25 +81,31 @@ public class BasicPlayerScript : MonoBehaviour {
 
 		Quaternion rotR = Quaternion.AngleAxis(newFloat, Vector3.right);
 		transform.rotation = transform.rotation * rotR;
-
-		/* 
-		currentRotationX += eulerAngle;
-		currentRotationX = currentRotationX % 360;
-
-		if(currentRotationX >= 90f){
-			currentRotationX = 90f;
-		}
-		else if(currentRotationX <= -90f){
-			currentRotationX = -90f;
-		}
-
-		transform.Rotate(Vector3.right * eulerAngle);
-		*/
+		lookDirection = transform.rotation.eulerAngles.normalized;
 	}
 
-	private void updateLookDirection(){
-		lookDirection = new Vector3(0f, currentRotationY, 0f);
+	private void updateCamera(){
+		updateCameraPosition();
+		updateCameraTarget();
+	}
 
+	private void updateCameraPosition(){
+		Vector3 playerCenter = transform.position + new Vector3(0f, cameraHeight, 0f) -(directionXZ * 20f);
+		playerCamera.transform.position = playerCenter;
+	}
+
+	//Rotates the playerCamera to look at the correct location
+	private void updateCameraTarget(){
+		cameraTarget = transform.rotation * Vector3.forward * targetDistance;
+		playerCamera.transform.LookAt(cameraTarget + transform.position);
+	}
+
+	public Vector3 getMoveDirection(){
+		return directionXZ;
+	}
+
+	public Vector3 getLookDirection(){
+		return lookDirection;
 	}
 
 }

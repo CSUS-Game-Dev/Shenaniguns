@@ -1,4 +1,7 @@
 sceneSetups:
-- path: Assets/mainScene.unity
+- path: Assets/TestingCam.unity
   isLoaded: 1
   isActive: 1
+- path: Assets/arenas/testArena.unity
+  isLoaded: 1
+  isActive: 0
